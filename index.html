@@ -25,7 +25,6 @@
         .brand-katsu { color: #3b2314; font-size: 1.2rem; text-transform: uppercase; }
         .sub-brand { font-size: 0.65rem; color: #ea580c; font-weight: 700; letter-spacing: 0.08em; display: block; margin-top: -2px; }
 
-        /* Status Dot Indicator */
         .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; position: absolute; top: 14px; right: 14px; box-shadow: 0 0 6px rgba(34,197,94,0.6); transition: all 0.3s; }
         .status-dot.syncing { background: #f59e0b; box-shadow: 0 0 6px rgba(245,158,11,0.6); }
         .status-dot.offline { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.6); }
@@ -115,6 +114,11 @@
 
         .empty-state { text-align: center; padding: 30px 15px; color: #64748b; }
         .empty-state-icon { font-size: 2.5rem; margin-bottom: 8px; }
+
+        .draggable-item { cursor: grab; transition: background 0.2s, transform 0.2s; }
+        .draggable-item:active { cursor: grabbing; }
+        .draggable-item.dragging { opacity: 0.4; background: #fff7ed; border: 2px dashed #ea580c !important; }
+        .drag-handle { cursor: grab; font-size: 1.2rem; color: #94a3b8; padding: 0 6px; }
     </style>
 </head>
 <body>
@@ -148,10 +152,23 @@
         </div>
         <div class="cart-selector-bar" id="cart-selector-container"></div>
         <div class="category-scroll" id="pos-category-pills"></div>
+        
+        <!-- PENCARIAN & SORTING PRODUK DI KASIR -->
+        <div style="display:flex; gap:8px; margin-bottom:12px; align-items:center;">
+            <input type="text" id="pos-search-input" placeholder="🔍 Cari nama produk..." oninput="renderPOSGrid()" style="flex:1; padding:8px 12px; font-size:0.85rem;">
+            <select id="pos-sort-select" onchange="renderPOSGrid()" style="width:auto; padding:8px; font-size:0.82rem; font-weight:bold;">
+                <option value="custom">↕️ Sort</option>
+                <option value="price-asc">💵 Harga: Murah ➔ Mahal</option>
+                <option value="price-desc">💰 Harga: Mahal ➔ Murah</option>
+                <option value="name-asc">🔤 Nama: A ➔ Z</option>
+                <option value="name-desc">🔠 Nama: Z ➔ A</option>
+            </select>
+        </div>
+
         <div class="product-grid" id="pos-product-grid"></div>
     </div>
 
-    <!-- TAB DASHBOARD & LAPORAN MULTI-LAYER -->
+    <!-- TAB DASHBOARD & LAPORAN -->
     <div id="tab-laporan" class="page-tab">
         <div class="card-box" style="margin-bottom:12px; padding:12px;">
             <h4 style="color:var(--primary); margin-bottom:8px; font-size:0.85rem;">🗓️ Filter Periode & Metode</h4>
@@ -191,7 +208,7 @@
         </div>
 
         <div class="sub-tab-menu">
-            <button class="sub-tab-btn active" onclick="switchSubTab('ringkasan')">📈 Omset</button>
+            <button class="sub-tab-btn active" onclick="switchSubTab('ringkasan')">📈 Omset & Profit</button>
             <button class="sub-tab-btn" onclick="switchSubTab('item-stats')">📊 Terjual per Item</button>
             <button class="sub-tab-btn" onclick="switchSubTab('riwayat')">📜 Riwayat Transaksi</button>
         </div>
@@ -199,14 +216,20 @@
         <!-- SUB-TAB 1 -->
         <div id="sub-ringkasan" class="sub-page-tab active">
             <div class="card-box">
-                <h3 style="margin-bottom:12px; color:var(--primary);">Ringkasan Omset</h3>
+                <h3 style="margin-bottom:12px; color:var(--primary);">Ringkasan Performa & Keuntungan</h3>
                 <div class="kpi-grid">
                     <div class="kpi-card"><div class="kpi-title">TOTAL OMSET</div><div class="kpi-value" id="kpi-omset">Rp 0</div></div>
                     <div class="kpi-card"><div class="kpi-title">TOTAL TRANSAKSI</div><div class="kpi-value" id="kpi-trx">0</div></div>
                     <div class="kpi-card"><div class="kpi-title">TOTAL TUNAI (CASH)</div><div class="kpi-value" id="kpi-cash" style="color:#16a34a;">Rp 0</div></div>
                     <div class="kpi-card"><div class="kpi-title">TOTAL QRIS</div><div class="kpi-value" id="kpi-qris" style="color:#2563eb;">Rp 0</div></div>
                 </div>
-                <div class="kpi-grid">
+                
+                <div class="kpi-grid" style="margin-top:10px;">
+                    <div class="kpi-card" style="background:#fef2f2; border-color:#fca5a5;"><div class="kpi-title" style="color:#dc2626;">TOTAL HPP / MODAL</div><div class="kpi-value" id="kpi-hpp" style="color:#dc2626;">Rp 0</div></div>
+                    <div class="kpi-card" style="background:#f0fdf4; border-color:#86efac;"><div class="kpi-title" style="color:#16a34a;">ESTIMASI LABA BERSIH</div><div class="kpi-value" id="kpi-laba" style="color:#16a34a;">Rp 0</div></div>
+                </div>
+
+                <div class="kpi-grid" style="margin-top:10px;">
                     <div class="kpi-card"><div class="kpi-title">RATA-RATA / TRX (AOV)</div><div class="kpi-value" id="kpi-aov">Rp 0</div></div>
                     <div class="kpi-card"><div class="kpi-title">METODE DOMINAN</div><div class="kpi-value" id="kpi-pay">-</div></div>
                 </div>
@@ -216,15 +239,15 @@
             </div>
         </div>
 
-        <!-- SUB-TAB 2: Terjual per Item -->
+        <!-- SUB-TAB 2 -->
         <div id="sub-item-stats" class="sub-page-tab">
             <div class="card-box">
-                <h3 style="margin-bottom:12px;">Rincian Pcs & Omset Terjual per Item</h3>
+                <h3 style="margin-bottom:12px;">Rincian Pcs, Omset & Profit per Item</h3>
                 <div id="item-sales-summary-container"></div>
             </div>
         </div>
 
-        <!-- SUB-TAB 3: Riwayat -->
+        <!-- SUB-TAB 3 -->
         <div id="sub-riwayat" class="sub-page-tab">
             <div class="card-box">
                 <h3 style="margin-bottom:10px;">Daftar Transaksi Kasir</h3>
@@ -241,6 +264,7 @@
             <div class="form-group"><label>Kategori Produk</label><input type="text" id="new-prod-cat" placeholder="Contoh: Chicken Katsu / Risol Matang"></div>
             <div class="form-group"><label>Nama Produk</label><input type="text" id="new-prod-name" placeholder="Contoh: Katsu Matang / Risol Mayo Mentah"></div>
             <div class="form-group"><label>Harga Satuan Standar (Rp)</label><input type="number" id="new-prod-price" placeholder="15000"></div>
+            <div class="form-group"><label>HPP / Modal Satuan (Rp)</label><input type="number" id="new-prod-hpp" placeholder="10000"></div>
             <div class="form-group"><label>Stok Awal</label><input type="number" id="new-prod-stock" value="50"></div>
             <div class="form-group"><label>Ada Opsi Saus Gratis?</label><select id="new-prod-sauce"><option value="false">Tidak Ada</option><option value="true">Ya (Tampilkan Pilihan Saus)</option></select></div>
             <button class="btn-full btn-primary" onclick="addNewProduct()">Simpan Produk Baru</button>
@@ -257,7 +281,8 @@
         </div>
 
         <div class="card-box">
-            <h3>📦 Kelola Harga & Stok Produk</h3>
+            <h3>📦 Kelola Harga, HPP, Urutan & Stok Produk</h3>
+            <small style="color:#64748b; font-size:0.75rem; display:block; margin-bottom:10px;">💡 <strong>Tips:</strong> Tekan dan tahan ikon ☰ untuk menarik/menggeser urutan produk.</small>
             <div id="manage-products-list"></div>
             <button class="btn-full btn-primary" style="margin-top:16px; background:#16a34a;" onclick="saveAllStockChanges()">💾 Simpan Semua Perubahan Stok</button>
         </div>
@@ -304,7 +329,27 @@
     <button class="btn-checkout" onclick="openCartModal()">Keranjang Pesanan</button>
 </div>
 
-<!-- MODAL PRODUK / EDIT ITEM -->
+<!-- MODAL EDIT ADMIN PRODUK KOMPLIT -->
+<div class="modal" id="modal-edit-product-admin">
+    <div class="modal-content">
+        <h3 style="margin-bottom:15px; color:var(--primary);">✏️ Edit Detail Produk</h3>
+        <div class="form-group"><label>Kategori Produk</label><input type="text" id="edit-prod-cat"></div>
+        <div class="form-group"><label>Nama Produk</label><input type="text" id="edit-prod-name"></div>
+        <div class="form-group"><label>Harga Jual Standar (Rp)</label><input type="number" id="edit-prod-price"></div>
+        <div class="form-group"><label>HPP / Modal Satuan (Rp)</label><input type="number" id="edit-prod-hpp"></div>
+        <div class="form-group"><label>Stok</label><input type="number" id="edit-prod-stock"></div>
+        <div class="form-group"><label>Ada Opsi Saus Gratis?</label>
+            <select id="edit-prod-sauce">
+                <option value="false">Tidak Ada</option>
+                <option value="true">Ya (Tampilkan Pilihan Saus)</option>
+            </select>
+        </div>
+        <button class="btn-full btn-primary" onclick="saveAdminProductEdit()">Simpan Perubahan Produk</button>
+        <button class="btn-full btn-secondary" onclick="closeModal('modal-edit-product-admin')">Batal</button>
+    </div>
+</div>
+
+<!-- MODAL PRODUK / EDIT ITEM KASIR -->
 <div class="modal" id="modal-product">
     <div class="modal-content">
         <h3 id="modal-product-title" style="margin-bottom:15px; color:var(--primary);">Pilih Jumlah & Promo</h3>
@@ -357,7 +402,6 @@
             </div>
         </div>
 
-        <!-- Input Pembayaran Tunai & Kembalian -->
         <div id="cash-payment-section" class="form-group" style="background:#fff7ed; padding:12px; border-radius:10px; border:1px solid #fed7aa;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <label style="margin:0; color:#c2410c;">Nominal Uang Pembayaran (Rp)</label>
@@ -413,9 +457,8 @@
             </div>
         </div>
 
-        <button class="btn-full btn-primary" style="background:#25D366; color:white; margin-top:14px;" onclick="shareReceiptWAText()">💬 Kirim Teks Struk via WA</button>
-        <button class="btn-full btn-primary" style="background:#0284c7; color:white;" onclick="shareReceiptWAImage()">📲 Bagikan Gambar Struk HD</button>
-        <button class="btn-full btn-secondary" onclick="downloadReceiptImage()">💾 Download Struk PNG (HD)</button>
+        <button class="btn-full btn-primary" style="background:#0284c7; color:white; margin-top:14px;" onclick="shareReceiptWAImage()">📲 Bagikan Gambar Struk (Via WA)</button>
+        <button class="btn-full btn-secondary" onclick="downloadReceiptImage()">💾 Download Gambar Struk</button>
         <button class="btn-full btn-secondary" onclick="closeModal('modal-receipt')">Tutup</button>
     </div>
 </div>
@@ -437,13 +480,17 @@
 
     let activeCategory = "Semua";
     let activeProdId = null;
-    let editingCartItemIndex = null; // Menandai jika sedang mengedit item keranjang
+    let editingCartItemIndex = null;
+    let editingAdminProdId = null;
 
     let selectedPayment = 'Tunai';
     let cashPaidAmount = 0;
     let modalQty = 1;
     let selectedSauceQty = {};
     let currentReceiptData = null;
+
+    let lastLocalMutationTime = 0;
+    let draggedIndex = null;
 
     function setSyncStatus(status) {
         const dot = document.getElementById('sync-status-dot');
@@ -475,9 +522,9 @@
         return hasChanges;
     }
 
-    // SYNC HANYA SAAT TAMPILAN AKTIF/DIBUKA (MEMANGGIL FOCUS API)
     function syncBackground() {
         if (checkUnsavedStockChanges()) return;
+        if (Date.now() - lastLocalMutationTime < 8000) return;
 
         if (!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL.includes("MASUKKAN_URL")) {
             setSyncStatus('offline');
@@ -487,6 +534,10 @@
         fetch(GOOGLE_SHEET_URL)
             .then(res => res.json())
             .then(data => {
+                if (Date.now() - lastLocalMutationTime < 8000) {
+                    setSyncStatus('');
+                    return;
+                }
                 let updated = false;
                 if (data.products && JSON.stringify(products) !== JSON.stringify(data.products)) {
                     products = data.products;
@@ -664,7 +715,28 @@
             return;
         }
 
-        const filtered = activeCategory === "Semua" ? products : products.filter(p => (p.category || "Umum") === activeCategory);
+        let filtered = activeCategory === "Semua" ? [...products] : products.filter(p => (p.category || "Umum") === activeCategory);
+
+        const searchQuery = (document.getElementById('pos-search-input')?.value || '').toLowerCase().trim();
+        if (searchQuery) {
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(searchQuery));
+        }
+
+        const sortVal = document.getElementById('pos-sort-select')?.value || 'custom';
+        if (sortVal === 'price-asc') {
+            filtered.sort((a, b) => (a.basePrice || 0) - (b.basePrice || 0));
+        } else if (sortVal === 'price-desc') {
+            filtered.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0));
+        } else if (sortVal === 'name-asc') {
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortVal === 'name-desc') {
+            filtered.sort((a, b) => b.name.localeCompare(a.name));
+        }
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `<p style="grid-column: span 3; text-align:center; color:#64748b; padding:20px;">Produk tidak ditemukan.</p>`;
+            return;
+        }
 
         filtered.forEach(p => {
             grid.innerHTML += `
@@ -711,7 +783,7 @@
     }
 
     function openProductModal(id) {
-        editingCartItemIndex = null; // Reset status edit saat menambah item baru
+        editingCartItemIndex = null;
         document.getElementById('btn-confirm-add').innerText = "+ Masukkan ke Keranjang";
 
         activeProdId = id;
@@ -740,7 +812,6 @@
         document.getElementById('modal-product').classList.add('active');
     }
 
-    // MEMBUKA MODAL SETUP PRODUK DENGAN PRE-FILL DATA SAAT EDIT ITEM KERANJANG
     function editCartItem(index) {
         const currentCart = getActiveCart();
         const item = currentCart.items[index];
@@ -871,9 +942,11 @@
             category: prod.category || "Umum",
             name: prod.name,
             unitPrice: Math.round(price / modalQty),
+            unitHpp: prod.hpp || 0,
             chosenSauces: chosenSauces,
             qty: modalQty,
-            subtotal: price
+            subtotal: price,
+            totalHpp: (prod.hpp || 0) * modalQty
         };
 
         const wasEditing = editingCartItemIndex !== null;
@@ -890,7 +963,7 @@
         updateCartUI();
 
         if (wasEditing) {
-            openCartModal(); // Kembali otomatis ke keranjang setelah edit selesai
+            openCartModal();
         }
     }
 
@@ -1001,6 +1074,7 @@
 
     function closeModal(id) { 
         if (id === 'modal-product') editingCartItemIndex = null;
+        if (id === 'modal-edit-product-admin') editingAdminProdId = null;
         document.getElementById(id).classList.remove('active'); 
     }
 
@@ -1162,30 +1236,6 @@
         return canvas;
     }
 
-    function shareReceiptWAText() {
-        if (!currentReceiptData) return;
-        let txt = `*RISOL.id x CHICKEN KATSU*\n`;
-        txt += `==========================\n`;
-        txt += `No Nota: ${currentReceiptData.id}\n`;
-        txt += `Tanggal: ${currentReceiptData.date}\n`;
-        txt += `Pemesan: ${currentReceiptData.cartName}\n`;
-        txt += `==========================\n`;
-        currentReceiptData.cart.forEach(i => {
-            txt += `• *${i.name}*\n  ${i.qty} x Rp${i.unitPrice.toLocaleString()} = Rp${i.subtotal.toLocaleString()}\n`;
-        });
-        txt += `==========================\n`;
-        txt += `*TOTAL: Rp${currentReceiptData.total.toLocaleString()}*\n`;
-        txt += `Metode: ${currentReceiptData.payment}\n`;
-        if (currentReceiptData.payment === 'Tunai') {
-            txt += `Bayar: Rp${(currentReceiptData.cashPaid||0).toLocaleString()}\n`;
-            txt += `Kembali: Rp${(currentReceiptData.cashChange||0).toLocaleString()}\n`;
-        }
-        txt += `\nTerima kasih atas pesanan Anda! 🙏`;
-
-        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`;
-        window.open(waUrl, '_blank');
-    }
-
     async function shareReceiptWAImage() {
         if (!currentReceiptData) return;
         const canvas = getReceiptCanvas();
@@ -1234,10 +1284,11 @@
         const startDateInput = document.getElementById('filter-start-date')?.value;
         const endDateInput = document.getElementById('filter-end-date')?.value;
 
-        let omset = 0, count = 0;
+        let omset = 0, count = 0, totalHpp = 0;
         let qrisTotal = 0, cashTotal = 0;
         let itemSalesCounter = {};
         let itemRevenueCounter = {};
+        let itemHppCounter = {};
         let dailyTrend = {};
 
         const now = new Date();
@@ -1290,8 +1341,17 @@
                     const itemQty = parseInt(i.qty) || 1;
                     const itemSub = parseInt(i.subtotal) || 0;
 
+                    let itemHpp = parseInt(i.unitHpp || i.hpp) || 0;
+                    if (itemHpp === 0) {
+                        let matchingProd = products.find(p => p.name === itemName);
+                        if (matchingProd) itemHpp = matchingProd.hpp || 0;
+                    }
+                    let totalItemHpp = itemHpp * itemQty;
+
+                    totalHpp += totalItemHpp;
                     itemSalesCounter[itemName] = (itemSalesCounter[itemName] || 0) + itemQty;
                     itemRevenueCounter[itemName] = (itemRevenueCounter[itemName] || 0) + itemSub;
+                    itemHppCounter[itemName] = (itemHppCounter[itemName] || 0) + totalItemHpp;
 
                     if (i.chosenSauces && Array.isArray(i.chosenSauces)) {
                         i.chosenSauces.forEach(s => {
@@ -1308,15 +1368,25 @@
                         let pName = match[1].trim();
                         let pQty = parseInt(match[2]) || 1;
                         itemSalesCounter[pName] = (itemSalesCounter[pName] || 0) + pQty;
+
+                        let matchingProd = products.find(p => p.name === pName);
+                        let itemHpp = matchingProd ? (matchingProd.hpp || 0) : 0;
+                        let totalItemHpp = itemHpp * pQty;
+                        totalHpp += totalItemHpp;
+                        itemHppCounter[pName] = (itemHppCounter[pName] || 0) + totalItemHpp;
                     }
                 });
             }
         });
 
+        let labaBersih = omset - totalHpp;
+
         document.getElementById('kpi-omset').innerText = `Rp ${omset.toLocaleString()}`;
         document.getElementById('kpi-trx').innerText = count;
         document.getElementById('kpi-cash').innerText = `Rp ${cashTotal.toLocaleString()}`;
         document.getElementById('kpi-qris').innerText = `Rp ${qrisTotal.toLocaleString()}`;
+        document.getElementById('kpi-hpp').innerText = `Rp ${totalHpp.toLocaleString()}`;
+        document.getElementById('kpi-laba').innerText = `Rp ${labaBersih.toLocaleString()}`;
         document.getElementById('kpi-aov').innerText = count > 0 ? `Rp ${Math.round(omset/count).toLocaleString()}` : 'Rp 0';
         document.getElementById('kpi-pay').innerText = qrisTotal >= cashTotal ? (qrisTotal > 0 ? 'QRIS' : '-') : 'Tunai';
 
@@ -1353,11 +1423,12 @@
         } else {
             for (let name in itemSalesCounter) {
                 let rev = itemRevenueCounter[name] || 0;
+                let itemLaba = rev - (itemHppCounter[name] || 0);
                 itemContainer.innerHTML += `
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:0.85rem;">
                         <div>
                             <strong>${name}</strong><br>
-                            ${rev > 0 ? `<small style="color:#64748b;">Estimasi Omset: Rp ${rev.toLocaleString()}</small>` : `<small style="color:#16a34a;">Gratis / Bonus</small>`}
+                            ${rev > 0 ? `<small style="color:#64748b;">Omset: Rp ${rev.toLocaleString()} \vert{} Modal: Rp${(itemHppCounter[name]||0).toLocaleString()}</small><br><small style="color:#16a34a; font-weight:bold;">Untung: Rp ${itemLaba.toLocaleString()}</small>` : `<small style="color:#16a34a;">Gratis / Bonus</small>`}
                         </div>
                         <div style="text-align:right;">
                             <span style="font-weight:900; color:var(--primary); font-size:1rem;">${itemSalesCounter[name]} Pcs</span>
@@ -1444,13 +1515,93 @@
         const cat = document.getElementById('new-prod-cat').value || "Umum";
         const name = document.getElementById('new-prod-name').value;
         const price = parseInt(document.getElementById('new-prod-price').value) || 0;
+        const hpp = parseInt(document.getElementById('new-prod-hpp').value) || 0;
         const stock = parseInt(document.getElementById('new-prod-stock').value) || 0;
         const hasSauce = document.getElementById('new-prod-sauce').value === 'true';
 
         if (!name || price <= 0) { alert('Lengkapi nama dan harga produk!'); return; }
-        products.push({ id: 'p_' + Date.now(), category: cat, name: name, basePrice: price, stock: stock, hasSauce: hasSauce, tiers: [] });
+        products.push({ id: 'p_' + Date.now(), category: cat, name: name, basePrice: price, hpp: hpp, stock: stock, hasSauce: hasSauce, tiers: [] });
+        
         saveProductsToCloud();
         initUI();
+
+        document.getElementById('new-prod-name').value = '';
+        document.getElementById('new-prod-price').value = '';
+        document.getElementById('new-prod-hpp').value = '';
+    }
+
+    function openAdminEditProductModal(id) {
+        editingAdminProdId = id;
+        const p = products.find(item => item.id === id);
+        if (!p) return;
+
+        document.getElementById('edit-prod-cat').value = p.category || 'Umum';
+        document.getElementById('edit-prod-name').value = p.name || '';
+        document.getElementById('edit-prod-price').value = p.basePrice || 0;
+        document.getElementById('edit-prod-hpp').value = p.hpp || 0;
+        document.getElementById('edit-prod-stock').value = p.stock || 0;
+        document.getElementById('edit-prod-sauce').value = p.hasSauce ? 'true' : 'false';
+
+        document.getElementById('modal-edit-product-admin').classList.add('active');
+    }
+
+    function saveAdminProductEdit() {
+        if (!editingAdminProdId) return;
+        const p = products.find(item => item.id === editingAdminProdId);
+        if (!p) return;
+
+        p.category = document.getElementById('edit-prod-cat').value || 'Umum';
+        p.name = document.getElementById('edit-prod-name').value || p.name;
+        p.basePrice = parseInt(document.getElementById('edit-prod-price').value) || 0;
+        p.hpp = parseInt(document.getElementById('edit-prod-hpp').value) || 0;
+        p.stock = parseInt(document.getElementById('edit-prod-stock').value) || 0;
+        p.hasSauce = document.getElementById('edit-prod-sauce').value === 'true';
+
+        saveProductsToCloud();
+        closeModal('modal-edit-product-admin');
+        initUI();
+    }
+
+    function moveProduct(index, direction) {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= products.length) return;
+        
+        const temp = products[index];
+        products[index] = products[newIndex];
+        products[newIndex] = temp;
+        
+        saveProductsToCloud();
+        renderManageProducts();
+        renderPOSGrid();
+    }
+
+    function handleDragStart(e, index) {
+        draggedIndex = index;
+        e.dataTransfer.effectAllowed = 'move';
+        e.currentTarget.classList.add('dragging');
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleDrop(e, targetIndex) {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+        const movedItem = products.splice(draggedIndex, 1)[0];
+        products.splice(targetIndex, 0, movedItem);
+
+        draggedIndex = null;
+        saveProductsToCloud();
+        renderManageProducts();
+        renderPOSGrid();
+    }
+
+    function handleDragEnd(e) {
+        e.currentTarget.classList.remove('dragging');
+        draggedIndex = null;
     }
 
     function renderManageProducts() {
@@ -1460,7 +1611,7 @@
             container.innerHTML = '<p style="color:#64748b; font-size:0.85rem;">Belum ada data produk dimuat.</p>';
             return;
         }
-        products.forEach(p => {
+        products.forEach((p, idx) => {
             let tiersHtml = '';
             if(p.tiers) {
                 p.tiers.forEach((t, tIdx) => {
@@ -1474,15 +1625,30 @@
             }
 
             container.innerHTML += `
-                <div style="border-bottom:1px solid var(--border); padding:10px 0;">
+                <div class="draggable-item" draggable="true" 
+                     ondragstart="handleDragStart(event, ${idx})" 
+                     ondragover="handleDragOver(event)" 
+                     ondrop="handleDrop(event, ${idx})" 
+                     ondragend="handleDragEnd(event)" 
+                     style="border-bottom:1px solid var(--border); padding:10px 0;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong>[${p.category||'Umum'}] ${p.name}</strong>
-                        <button class="btn-danger" style="padding:4px 8px; font-size:0.75rem; border-radius:6px;" onclick="deleteProduct('${p.id}')">Hapus</button>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="drag-handle" title="Tarik untuk memindahkan urutan">☰</span>
+                            <span style="font-size:0.85rem; color:#64748b; font-weight:bold;">#${idx+1}</span>
+                            <strong>[${p.category||'Umum'}] ${p.name}</strong>
+                        </div>
+                        <div style="display:flex; gap:4px; align-items:center;">
+                            <button style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-size:0.75rem; cursor:pointer;" onclick="moveProduct(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.4;"' : ''}>⬆️</button>
+                            <button style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-size:0.75rem; cursor:pointer;" onclick="moveProduct(${idx}, 1)" ${idx === products.length - 1 ? 'disabled style="opacity:0.4;"' : ''}>⬇️</button>
+                            <button style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:bold; cursor:pointer;" onclick="openAdminEditProductModal('${p.id}')">✏️ Edit</button>
+                            <button class="btn-danger" style="padding:2px 6px; font-size:0.75rem; border-radius:4px;" onclick="deleteProduct('${p.id}')">Hapus</button>
+                        </div>
                     </div>
 
-                    <div style="display:flex; gap:8px; margin-top:6px;">
-                        <div><small>Harga (Rp)</small><input type="number" value="${p.basePrice}" onchange="updateBasePrice('${p.id}', this.value)" style="padding:4px;"></div>
-                        <div><small>Stok</small><input type="number" class="stock-input-prod" data-id="${p.id}" value="${p.stock}" style="padding:4px; width:75px;"></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-top:6px;">
+                        <div><small style="font-size:0.7rem; color:#64748b;">Harga (Rp)</small><input type="number" value="${p.basePrice}" onchange="updateBasePrice('${p.id}', this.value)" style="padding:4px; font-size:0.85rem;"></div>
+                        <div><small style="font-size:0.7rem; color:#64748b;">HPP (Rp)</small><input type="number" value="${p.hpp||0}" onchange="updateHppPrice('${p.id}', this.value)" style="padding:4px; font-size:0.85rem;"></div>
+                        <div><small style="font-size:0.7rem; color:#64748b;">Stok</small><input type="number" class="stock-input-prod" data-id="${p.id}" value="${p.stock}" style="padding:4px; font-size:0.85rem;"></div>
                     </div>
 
                     <div style="margin-top:6px;">
@@ -1502,6 +1668,11 @@
     function updateBasePrice(id, val) {
         const p = products.find(item => item.id === id);
         if(p) { p.basePrice = parseInt(val) || 0; saveProductsToCloud(); renderPOSGrid(); }
+    }
+
+    function updateHppPrice(id, val) {
+        const p = products.find(item => item.id === id);
+        if(p) { p.hpp = parseInt(val) || 0; saveProductsToCloud(); }
     }
 
     function renderManageSauces() {
@@ -1592,7 +1763,8 @@
     }
 
     function deleteProduct(id) {
-        if(confirm('Hapus produk ini?')) {
+        if(confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+            lastLocalMutationTime = Date.now();
             products = products.filter(p => p.id !== id);
             saveProductsToCloud();
             initUI();
@@ -1609,6 +1781,7 @@
     }
 
     function saveProductsToCloud() {
+        lastLocalMutationTime = Date.now();
         if (GOOGLE_SHEET_URL && !GOOGLE_SHEET_URL.includes("MASUKKAN_URL")) {
             fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
@@ -1659,7 +1832,6 @@
     initUI();
     syncBackground();
 
-    // SINKRONISASI HANYA SAAT LAYAR/APLIKASI DIBUKA KEMBALI
     window.addEventListener('focus', syncBackground);
 </script>
 </body>
