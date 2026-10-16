@@ -273,7 +273,7 @@
             <div class="form-group"><label>Harga Satuan Standar (Rp)</label><input type="number" id="new-prod-price" placeholder="15000"></div>
             <div class="form-group"><label>HPP / Modal Produksi Satuan (Rp)</label><input type="number" id="new-prod-hpp" placeholder="10000"></div>
             <div class="form-group"><label>Harga Maklon / Setoran Titipan (Rp)</label><input type="number" id="new-prod-maklon" placeholder="Kosongkan jika produk sendiri"></div>
-            <div class="form-group"><label>URL Link Gambar Produk</label><input type="text" id="new-prod-img" placeholder="https://example.com/foto.jpg"></div>
+            <div class="form-group"><label> Link Gambar Produk</label><input type="text" id="new-prod-img" placeholder="https://example.com/foto.jpg"></div>
             <div class="form-group"><label>Stok Awal</label><input type="number" id="new-prod-stock" value="50"></div>
             <div class="form-group"><label>Ada Opsi Saus Gratis?</label><select id="new-prod-sauce"><option value="false">Tidak Ada</option><option value="true">Ya (Tampilkan Pilihan Saus)</option></select></div>
             <button class="btn-full btn-primary" onclick="addNewProduct()">Simpan Produk Baru</button>
@@ -538,7 +538,7 @@
 </div>
 
 <script>
-    let GOOGLE_SHEET_URL = localStorage.getItem('pos_sheet_url') || "https://script.google.com/macros/s/AKfycbwSXG9pTdm49iezkTU5VTJe5RH1DCevXMiRmofIEjQ-pvPVli3xkJs7z84me1V_19IX/exec";
+    let GOOGLE_SHEET_URL = localStorage.getItem('pos_sheet_url') || "https://script.google.com/macros/s/AKfycbyEvECtLaKTnopMqQYYjPg-XokJ740LbzOcpX4YtMmYox7YO26RufwLlar_vlCt9j8j/exec";
     let adminPIN = localStorage.getItem('pos_admin_pin') || "1234";
     let quickDenoms = JSON.parse(localStorage.getItem('pos_quick_denoms') || "[5000, 10000, 20000, 50000, 100000]");
 
