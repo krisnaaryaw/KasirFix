@@ -57,9 +57,10 @@
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         @media (min-width: 600px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
 
-        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03); cursor: pointer; transition: transform 0.1s; }
+        .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03); cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; justify-content: space-between; }
         .product-card:active { transform: scale(0.96); background: var(--primary-light); }
-        .product-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+        .product-img { width: 100%; height: 110px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; }
+        .product-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; }
         .price-tag { font-size: 0.85rem; font-weight: 800; color: var(--primary); }
         .product-badge { font-size: 0.68rem; background: #ffedd5; color: #c2410c; padding: 2px 6px; border-radius: 4px; font-weight: 700; display: inline-block; margin-top: 4px; }
 
@@ -113,7 +114,6 @@
         .svg-chart { width: 100%; min-width: 320px; height: 180px; }
 
         .empty-state { text-align: center; padding: 30px 15px; color: #64748b; }
-        .empty-state-icon { font-size: 2.5rem; margin-bottom: 8px; }
 
         .draggable-item { cursor: grab; transition: background 0.2s, transform 0.2s; }
         .draggable-item:active { cursor: grabbing; }
@@ -124,7 +124,7 @@
 <body>
 
 <div class="brand-header">
-    <div class="role-badge" id="role-indicator" onclick="promptSwitchRole()">👤 Kasir</div>
+    <div class="role-badge" id="role-indicator" onclick="promptSwitchRole()">Kasir</div>
     <div class="status-dot" id="sync-status-dot" title="Status: Ready"></div>
     <div class="brand-banner">
         <span class="brand-risol">Risol.id</span>
@@ -138,10 +138,10 @@
 
 <div class="container">
     <div class="tab-menu">
-        <button class="tab-btn active" id="btn-tab-kasir" onclick="switchTab('kasir')">🛒 Kasir</button>
-        <button class="tab-btn" id="btn-tab-laporan" onclick="switchTab('laporan')">📊 Laporan</button>
-        <button class="tab-btn" id="btn-tab-stok" onclick="switchTab('stok')">📦 Stok & Produk</button>
-        <button class="tab-btn" id="btn-tab-pengaturan" onclick="switchTab('pengaturan')">⚙️ Pengaturan</button>
+        <button class="tab-btn active" id="btn-tab-kasir" onclick="switchTab('kasir')">Kasir</button>
+        <button class="tab-btn" id="btn-tab-laporan" onclick="switchTab('laporan')">Laporan</button>
+        <button class="tab-btn" id="btn-tab-stok" onclick="switchTab('stok')">Stok & Produk</button>
+        <button class="tab-btn" id="btn-tab-pengaturan" onclick="switchTab('pengaturan')">Pengaturan</button>
     </div>
 
     <!-- TAB KASIR -->
@@ -155,13 +155,13 @@
         
         <!-- PENCARIAN & SORTING PRODUK DI KASIR -->
         <div style="display:flex; gap:8px; margin-bottom:12px; align-items:center;">
-            <input type="text" id="pos-search-input" placeholder="🔍 Cari nama produk..." oninput="renderPOSGrid()" style="flex:1; padding:8px 12px; font-size:0.85rem;">
+            <input type="text" id="pos-search-input" placeholder="Cari nama produk..." oninput="renderPOSGrid()" style="flex:1; padding:8px 12px; font-size:0.85rem;">
             <select id="pos-sort-select" onchange="renderPOSGrid()" style="width:auto; padding:8px; font-size:0.82rem; font-weight:bold;">
-                <option value="custom">↕️ Sort</option>
-                <option value="price-asc">💵 Harga: Murah ➔ Mahal</option>
-                <option value="price-desc">💰 Harga: Mahal ➔ Murah</option>
-                <option value="name-asc">🔤 Nama: A ➔ Z</option>
-                <option value="name-desc">🔠 Nama: Z ➔ A</option>
+                <option value="custom">Urutkan</option>
+                <option value="price-asc">Harga: Terendah</option>
+                <option value="price-desc">Harga: Tertinggi</option>
+                <option value="name-asc">Nama: A - Z</option>
+                <option value="name-desc">Nama: Z - A</option>
             </select>
         </div>
 
@@ -171,7 +171,7 @@
     <!-- TAB DASHBOARD & LAPORAN -->
     <div id="tab-laporan" class="page-tab">
         <div class="card-box" style="margin-bottom:12px; padding:12px;">
-            <h4 style="color:var(--primary); margin-bottom:8px; font-size:0.85rem;">🗓️ Filter Periode & Metode</h4>
+            <h4 style="color:var(--primary); margin-bottom:8px; font-size:0.85rem;">Filter Periode & Metode</h4>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
                 <div>
                     <small style="font-size:0.75rem; color:#64748b; font-weight:bold;">Periode Waktu:</small>
@@ -208,9 +208,9 @@
         </div>
 
         <div class="sub-tab-menu">
-            <button class="sub-tab-btn active" onclick="switchSubTab('ringkasan')">📈 Omset & Profit</button>
-            <button class="sub-tab-btn" onclick="switchSubTab('item-stats')">📊 Terjual per Item</button>
-            <button class="sub-tab-btn" onclick="switchSubTab('riwayat')">📜 Riwayat Transaksi</button>
+            <button class="sub-tab-btn active" onclick="switchSubTab('ringkasan')">Omset & Profit</button>
+            <button class="sub-tab-btn" onclick="switchSubTab('item-stats')">Terjual per Item</button>
+            <button class="sub-tab-btn" onclick="switchSubTab('riwayat')">Riwayat Transaksi</button>
         </div>
 
         <!-- SUB-TAB 1 -->
@@ -236,6 +236,13 @@
 
                 <h4 style="margin: 14px 0 6px;">Grafik Trend Omset Harian</h4>
                 <div class="chart-container" id="svg-chart-wrapper"></div>
+            </div>
+
+            <!-- DASHBOARD DEDIKASI DANA SETORAN MAKLON -->
+            <div class="card-box">
+                <h3 style="margin-bottom:6px; color:var(--primary);">Rincian Setoran Maklon / Barang Titipan</h3>
+                <small style="color:#64748b; font-size:0.75rem; display:block; margin-bottom:12px;">Total tagihan setoran ke pemilik barang berdasarkan unit terjual.</small>
+                <div id="maklon-summary-container"></div>
             </div>
         </div>
 
@@ -264,14 +271,16 @@
             <div class="form-group"><label>Kategori Produk</label><input type="text" id="new-prod-cat" placeholder="Contoh: Chicken Katsu / Risol Matang"></div>
             <div class="form-group"><label>Nama Produk</label><input type="text" id="new-prod-name" placeholder="Contoh: Katsu Matang / Risol Mayo Mentah"></div>
             <div class="form-group"><label>Harga Satuan Standar (Rp)</label><input type="number" id="new-prod-price" placeholder="15000"></div>
-            <div class="form-group"><label>HPP / Modal Satuan (Rp)</label><input type="number" id="new-prod-hpp" placeholder="10000"></div>
+            <div class="form-group"><label>HPP / Modal Produksi Satuan (Rp)</label><input type="number" id="new-prod-hpp" placeholder="10000"></div>
+            <div class="form-group"><label>Harga Maklon / Setoran Titipan (Rp)</label><input type="number" id="new-prod-maklon" placeholder="Kosongkan jika produk sendiri"></div>
+            <div class="form-group"><label>URL Link Gambar Produk</label><input type="text" id="new-prod-img" placeholder="https://example.com/foto.jpg"></div>
             <div class="form-group"><label>Stok Awal</label><input type="number" id="new-prod-stock" value="50"></div>
             <div class="form-group"><label>Ada Opsi Saus Gratis?</label><select id="new-prod-sauce"><option value="false">Tidak Ada</option><option value="true">Ya (Tampilkan Pilihan Saus)</option></select></div>
             <button class="btn-full btn-primary" onclick="addNewProduct()">Simpan Produk Baru</button>
         </div>
 
         <div class="card-box">
-            <h3 style="margin-bottom:12px; color:var(--primary);">🥫 Stok Saus Gratis</h3>
+            <h3 style="margin-bottom:12px; color:var(--primary);">Stok Saus Gratis</h3>
             <div id="manage-sauce-list" style="margin-bottom:12px;"></div>
             <div style="display:flex; gap:6px;">
                 <input type="text" id="new-sauce-name" placeholder="Nama Saus Baru">
@@ -281,17 +290,17 @@
         </div>
 
         <div class="card-box">
-            <h3>📦 Kelola Harga, HPP, Urutan & Stok Produk</h3>
-            <small style="color:#64748b; font-size:0.75rem; display:block; margin-bottom:10px;">💡 <strong>Tips:</strong> Tekan dan tahan ikon ☰ untuk menarik/menggeser urutan produk.</small>
+            <h3>Kelola Harga, HPP, Maklon, Urutan & Stok Produk</h3>
+            <small style="color:#64748b; font-size:0.75rem; display:block; margin-bottom:10px;">Tips: Tekan dan tahan tombol seret (==) untuk menggeser urutan produk.</small>
             <div id="manage-products-list"></div>
-            <button class="btn-full btn-primary" style="margin-top:16px; background:#16a34a;" onclick="saveAllStockChanges()">💾 Simpan Semua Perubahan Stok</button>
+            <button class="btn-full btn-primary" style="margin-top:16px; background:#16a34a;" onclick="saveAllStockChanges()">Simpan Semua Perubahan Stok</button>
         </div>
     </div>
 
     <!-- TAB PENGATURAN -->
     <div id="tab-pengaturan" class="page-tab">
         <div class="card-box">
-            <h3 style="margin-bottom:12px; color:var(--primary);">⚙️ Pengaturan Pembayaran Tunai</h3>
+            <h3 style="margin-bottom:12px; color:var(--primary);">Pengaturan Pembayaran Tunai</h3>
             <div class="form-group">
                 <label>Pecahan Uang Cepat (Pisahkan dengan koma)</label>
                 <input type="text" id="setting-denoms" value="5000, 10000, 20000, 50000, 100000">
@@ -301,7 +310,7 @@
         </div>
 
         <div class="card-box">
-            <h3 style="margin-bottom:12px; color:var(--primary);">🔒 Keamanan Admin</h3>
+            <h3 style="margin-bottom:12px; color:var(--primary);">Keamanan Admin</h3>
             <div class="form-group">
                 <label>PIN Admin Baru (4 Angka)</label>
                 <input type="password" id="setting-pin" placeholder="1234" maxlength="6">
@@ -310,7 +319,7 @@
         </div>
 
         <div class="card-box">
-            <h3 style="margin-bottom:12px; color:var(--primary);">🌐 Integrasi Google Sheet</h3>
+            <h3 style="margin-bottom:12px; color:var(--primary);">Integrasi Google Sheet</h3>
             <div class="form-group">
                 <label>URL Apps Script Web App</label>
                 <input type="text" id="setting-sheet-url">
@@ -332,11 +341,13 @@
 <!-- MODAL EDIT ADMIN PRODUK KOMPLIT -->
 <div class="modal" id="modal-edit-product-admin">
     <div class="modal-content">
-        <h3 style="margin-bottom:15px; color:var(--primary);">✏️ Edit Detail Produk</h3>
+        <h3 style="margin-bottom:15px; color:var(--primary);">Edit Detail Produk</h3>
         <div class="form-group"><label>Kategori Produk</label><input type="text" id="edit-prod-cat"></div>
         <div class="form-group"><label>Nama Produk</label><input type="text" id="edit-prod-name"></div>
         <div class="form-group"><label>Harga Jual Standar (Rp)</label><input type="number" id="edit-prod-price"></div>
-        <div class="form-group"><label>HPP / Modal Satuan (Rp)</label><input type="number" id="edit-prod-hpp"></div>
+        <div class="form-group"><label>HPP / Modal Production (Rp)</label><input type="number" id="edit-prod-hpp"></div>
+        <div class="form-group"><label>Harga Maklon / Setoran Titipan (Rp)</label><input type="number" id="edit-prod-maklon"></div>
+        <div class="form-group"><label>URL Link Gambar Produk</label><input type="text" id="edit-prod-img"></div>
         <div class="form-group"><label>Stok</label><input type="number" id="edit-prod-stock"></div>
         <div class="form-group"><label>Ada Opsi Saus Gratis?</label>
             <select id="edit-prod-sauce">
@@ -389,7 +400,7 @@
     <div class="modal-content">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h3>Keranjang: <span id="modal-cart-name" style="color:var(--primary);">Pesanan 1</span></h3>
-            <button onclick="renameCurrentCart()" style="background:none; border:none; color:#64748b; font-size:0.8rem; cursor:pointer; font-weight:bold;">✏️ Ubah Nama</button>
+            <button onclick="renameCurrentCart()" style="background:none; border:none; color:#64748b; font-size:0.8rem; cursor:pointer; font-weight:bold;">Ubah Nama</button>
         </div>
         
         <div id="cart-items-container" style="margin: 10px 0;"></div>
@@ -405,7 +416,7 @@
         <div id="cash-payment-section" class="form-group" style="background:#fff7ed; padding:12px; border-radius:10px; border:1px solid #fed7aa;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <label style="margin:0; color:#c2410c;">Nominal Uang Pembayaran (Rp)</label>
-                <button type="button" onclick="setCashPaidExact()" style="padding:4px 8px; border-radius:6px; border:1px solid var(--primary); background:#fff; font-weight:bold; font-size:0.75rem; color:var(--primary); cursor:pointer;">💵 Uang Pas</button>
+                <button type="button" onclick="setCashPaidExact()" style="padding:4px 8px; border-radius:6px; border:1px solid var(--primary); background:#fff; font-weight:bold; font-size:0.75rem; color:var(--primary); cursor:pointer;">Uang Pas</button>
             </div>
             <input type="number" id="cash-paid-input" placeholder="Masukkan jumlah uang..." oninput="calculateChange()" style="font-size:1.1rem; font-weight:bold; border-color:#fdba74;">
             
@@ -457,8 +468,8 @@
             </div>
         </div>
 
-        <button class="btn-full btn-primary" style="background:#0284c7; color:white; margin-top:14px;" onclick="shareReceiptWAImage()">📲 Bagikan Gambar Struk (Via WA)</button>
-        <button class="btn-full btn-secondary" onclick="downloadReceiptImage()">💾 Download Gambar Struk</button>
+        <button class="btn-full btn-primary" style="background:#0284c7; color:white; margin-top:14px;" onclick="shareReceiptWAImage()">Bagikan Gambar Struk (Via WA)</button>
+        <button class="btn-full btn-secondary" onclick="downloadReceiptImage()">Download Gambar Struk</button>
         <button class="btn-full btn-secondary" onclick="closeModal('modal-receipt')">Tutup</button>
     </div>
 </div>
@@ -468,7 +479,8 @@
     let adminPIN = localStorage.getItem('pos_admin_pin') || "1234";
     let quickDenoms = JSON.parse(localStorage.getItem('pos_quick_denoms') || "[5000, 10000, 20000, 50000, 100000]");
 
-    let currentRole = 'kasir';
+    // PERBAIKAN 1: SIMPAN SESSION ROLE DI LOCALSTORAGE
+    let currentRole = localStorage.getItem('pos_current_role') || 'kasir';
     let currentTabName = 'kasir';
 
     let products = [];
@@ -580,12 +592,12 @@
     function renderRoleBadge() {
         const badge = document.getElementById('role-indicator');
         if (currentRole === 'admin') {
-            badge.innerText = '🔑 Admin';
+            badge.innerText = 'Admin (Logout)';
             badge.style.background = '#ffedd5';
             badge.style.color = '#c2410c';
             badge.style.borderColor = '#fdba74';
         } else {
-            badge.innerText = '👤 Kasir';
+            badge.innerText = 'Kasir';
             badge.style.background = '#e2e8f0';
             badge.style.color = '#334155';
             badge.style.borderColor = '#cbd5e1';
@@ -594,13 +606,18 @@
 
     function promptSwitchRole() {
         if (currentRole === 'admin') {
-            currentRole = 'kasir';
-            alert('Mode berganti ke KASIR.');
-            switchTab('kasir');
+            const isLogout = confirm('Apakah Anda ingin logout dari mode Admin?');
+            if (isLogout) {
+                currentRole = 'kasir';
+                localStorage.setItem('pos_current_role', 'kasir');
+                alert('Berhasil logout. Mode berganti ke KASIR.');
+                switchTab('kasir');
+            }
         } else {
             const pin = prompt('Masukkan PIN Admin:');
             if (pin === adminPIN) {
                 currentRole = 'admin';
+                localStorage.setItem('pos_current_role', 'admin');
                 alert('Berhasil masuk sebagai ADMIN.');
             } else if (pin !== null) {
                 alert('PIN Salah!');
@@ -621,6 +638,7 @@
             const pin = prompt('Akses Terkunci. Masukkan PIN Admin:');
             if (pin === adminPIN) {
                 currentRole = 'admin';
+                localStorage.setItem('pos_current_role', 'admin');
                 renderRoleBadge();
             } else {
                 if (pin !== null) alert('PIN Admin Salah!');
@@ -707,7 +725,6 @@
         if (!products || products.length === 0) {
             grid.innerHTML = `
                 <div class="empty-state" style="grid-column: span 3;">
-                    <div class="empty-state-icon">📡</div>
                     <strong>Data Belum Sinkron</strong>
                     <p style="font-size:0.8rem; margin-top:4px;">Memuat data dari server atau URL Sheet belum diisi.</p>
                 </div>
@@ -739,14 +756,20 @@
         }
 
         filtered.forEach(p => {
+            const imgHtml = p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" class="product-img" onerror="this.style.display='none'">` : '';
             grid.innerHTML += `
                 <div class="product-card" onclick="openProductModal('${p.id}')">
-                    <small style="color:#ea580c; font-weight:bold; font-size:0.7rem;">${p.category || 'Umum'}</small>
-                    <div class="product-title">${p.name}</div>
-                    <div class="price-tag">Rp ${(p.basePrice||0).toLocaleString()}</div>
-                    ${p.hasSauce ? '<span class="product-badge">+ Free Saus</span>' : ''}
-                    <div style="font-size:0.75rem; color:${p.stock > 0 ? '#64748b' : '#ef4444'}; margin-top:4px; font-weight:bold;">
-                        ${p.stock > 0 ? 'Stok: ' + p.stock : 'STOK HABIS'}
+                    <div>
+                        ${imgHtml}
+                        <small style="color:#ea580c; font-weight:bold; font-size:0.7rem; display:block;">${p.category || 'Umum'}</small>
+                        <div class="product-title">${p.name}</div>
+                    </div>
+                    <div>
+                        <div class="price-tag">Rp ${(p.basePrice||0).toLocaleString()}</div>
+                        ${p.hasSauce ? '<span class="product-badge">+ Free Saus</span>' : ''}
+                        <div style="font-size:0.75rem; color:${p.stock > 0 ? '#64748b' : '#ef4444'}; margin-top:4px; font-weight:bold;">
+                            ${p.stock > 0 ? 'Stok: ' + p.stock : 'STOK HABIS'}
+                        </div>
                     </div>
                 </div>
             `;
@@ -838,7 +861,7 @@
         }
 
         document.getElementById('modal-product-title').innerText = "Edit: " + prod.name;
-        document.getElementById('btn-confirm-add').innerText = "💾 Simpan Perubahan Item";
+        document.getElementById('btn-confirm-add').innerText = "Simpan Perubahan Item";
 
         renderTierButtons(prod);
         updateModalPriceAndQty();
@@ -943,6 +966,7 @@
             name: prod.name,
             unitPrice: Math.round(price / modalQty),
             unitHpp: prod.hpp || 0,
+            maklonPrice: prod.maklonPrice || 0,
             chosenSauces: chosenSauces,
             qty: modalQty,
             subtotal: price,
@@ -1004,8 +1028,8 @@
                         <strong style="color:var(--primary);">Rp ${item.subtotal.toLocaleString()} (${item.qty} Pcs)</strong>
                     </div>
                     <div style="display:flex; gap:8px; align-items:center;">
-                        <button onclick="editCartItem(${index})" style="background:var(--primary-light); border:1px solid #fed7aa; color:var(--primary); padding:6px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold; cursor:pointer;">Edit ✏️</button>
-                        <button onclick="removeCartItem(${index})" style="background:#fee2e2; border:1px solid #fca5a5; color:#ef4444; padding:6px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold; cursor:pointer;">Hapus ✕</button>
+                        <button onclick="editCartItem(${index})" style="background:var(--primary-light); border:1px solid #fed7aa; color:var(--primary); padding:6px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold; cursor:pointer;">Edit</button>
+                        <button onclick="removeCartItem(${index})" style="background:#fee2e2; border:1px solid #fca5a5; color:#ef4444; padding:6px 10px; border-radius:6px; font-size:0.75rem; font-weight:bold; cursor:pointer;">Hapus</button>
                     </div>
                 </div>
             `;
@@ -1289,6 +1313,7 @@
         let itemSalesCounter = {};
         let itemRevenueCounter = {};
         let itemHppCounter = {};
+        let maklonCounter = {};
         let dailyTrend = {};
 
         const now = new Date();
@@ -1342,11 +1367,22 @@
                     const itemSub = parseInt(i.subtotal) || 0;
 
                     let itemHpp = parseInt(i.unitHpp || i.hpp) || 0;
-                    if (itemHpp === 0) {
-                        let matchingProd = products.find(p => p.name === itemName);
-                        if (matchingProd) itemHpp = matchingProd.hpp || 0;
+                    let matchingProd = products.find(p => p.name === itemName || p.id === i.prodId);
+
+                    if (itemHpp === 0 && matchingProd) {
+                        itemHpp = matchingProd.hpp || 0;
                     }
                     let totalItemHpp = itemHpp * itemQty;
+
+                    // Hitung Maklon / Titipan
+                    let mPrice = i.maklonPrice || (matchingProd ? matchingProd.maklonPrice : 0) || 0;
+                    if (mPrice > 0) {
+                        if (!maklonCounter[itemName]) {
+                            maklonCounter[itemName] = { qty: 0, unitMaklon: mPrice, totalSetoran: 0 };
+                        }
+                        maklonCounter[itemName].qty += itemQty;
+                        maklonCounter[itemName].totalSetoran += (mPrice * itemQty);
+                    }
 
                     totalHpp += totalItemHpp;
                     itemSalesCounter[itemName] = (itemSalesCounter[itemName] || 0) + itemQty;
@@ -1374,6 +1410,15 @@
                         let totalItemHpp = itemHpp * pQty;
                         totalHpp += totalItemHpp;
                         itemHppCounter[pName] = (itemHppCounter[pName] || 0) + totalItemHpp;
+
+                        if (matchingProd && matchingProd.maklonPrice > 0) {
+                            let mPrice = matchingProd.maklonPrice;
+                            if (!maklonCounter[pName]) {
+                                maklonCounter[pName] = { qty: 0, unitMaklon: mPrice, totalSetoran: 0 };
+                            }
+                            maklonCounter[pName].qty += pQty;
+                            maklonCounter[pName].totalSetoran += (mPrice * pQty);
+                        }
                     }
                 });
             }
@@ -1392,6 +1437,54 @@
 
         renderSVGChart(dailyTrend);
 
+        // RENDER RINCIAN DANA SETORAN MAKLON/TITIPAN
+        const maklonContainer = document.getElementById('maklon-summary-container');
+        if (maklonContainer) {
+            maklonContainer.innerHTML = '';
+            let grandTotalMaklon = 0;
+            const maklonKeys = Object.keys(maklonCounter);
+
+            if (maklonKeys.length === 0) {
+                maklonContainer.innerHTML = '<p style="color:#64748b; font-size:0.85rem;">Tidak ada penjualan produk maklon/titipan pada periode ini.</p>';
+            } else {
+                let tableHtml = `
+                    <table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
+                        <thead>
+                            <tr style="border-bottom:2px solid var(--border); color:#64748b;">
+                                <th style="padding:6px 0;">Produk</th>
+                                <th style="padding:6px 0; text-align:center;">Qty</th>
+                                <th style="padding:6px 0; text-align:right;">Setoran/Pcs</th>
+                                <th style="padding:6px 0; text-align:right;">Total Setoran</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                maklonKeys.forEach(pName => {
+                    let mData = maklonCounter[pName];
+                    grandTotalMaklon += mData.totalSetoran;
+                    tableHtml += `
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:8px 0; font-weight:bold;">${pName}</td>
+                            <td style="padding:8px 0; text-align:center;">${mData.qty} pcs</td>
+                            <td style="padding:8px 0; text-align:right;">Rp ${mData.unitMaklon.toLocaleString()}</td>
+                            <td style="padding:8px 0; text-align:right; font-weight:bold; color:var(--primary);">Rp ${mData.totalSetoran.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += `
+                        </tbody>
+                    </table>
+                    <div style="margin-top:12px; padding:10px; background:var(--primary-light); border-radius:8px; border:1px solid #fed7aa; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:bold; font-size:0.85rem; color:#c2410c;">TOTAL HARUS DISETOR:</span>
+                        <span style="font-weight:900; font-size:1.1rem; color:var(--primary);">Rp ${grandTotalMaklon.toLocaleString()}</span>
+                    </div>
+                `;
+                maklonContainer.innerHTML = tableHtml;
+            }
+        }
+
         const historyContainer = document.getElementById('history-list-container');
         historyContainer.innerHTML = '';
         if (filteredTxList.length === 0) {
@@ -1405,7 +1498,7 @@
                                 <small style="color:#64748b;">${tx.date} - <strong>${tx.id}</strong> (${tx.cartName||'Pesanan'})</small>
                                 <div>
                                     <small style="background:#ffedd5; color:#c2410c; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:4px;">${tx.payment}</small>
-                                    <button class="btn-danger" style="padding:2px 6px; font-size:0.7rem; border-radius:4px; border:none; cursor:pointer;" onclick="deleteTransaction('${tx.id}')">Hapus 🗑️</button>
+                                    <button class="btn-danger" style="padding:2px 6px; font-size:0.7rem; border-radius:4px; border:none; cursor:pointer;" onclick="deleteTransaction('${tx.id}')">Hapus</button>
                                 </div>
                             </div>
                             <div style="font-size:0.85rem; margin:4px 0;">${tx.itemsSummary||'-'}</div>
@@ -1428,7 +1521,7 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:0.85rem;">
                         <div>
                             <strong>${name}</strong><br>
-                            ${rev > 0 ? `<small style="color:#64748b;">Omset: Rp ${rev.toLocaleString()} \vert{} Modal: Rp${(itemHppCounter[name]||0).toLocaleString()}</small><br><small style="color:#16a34a; font-weight:bold;">Untung: Rp ${itemLaba.toLocaleString()}</small>` : `<small style="color:#16a34a;">Gratis / Bonus</small>`}
+                            ${rev > 0 ? `<small style="color:#64748b;">Omset: Rp ${rev.toLocaleString()} \vert Modal: Rp${(itemHppCounter[name]||0).toLocaleString()}</small><br><small style="color:#16a34a; font-weight:bold;">Untung: Rp ${itemLaba.toLocaleString()}</small>` : `<small style="color:#16a34a;">Gratis / Bonus</small>`}
                         </div>
                         <div style="text-align:right;">
                             <span style="font-weight:900; color:var(--primary); font-size:1rem;">${itemSalesCounter[name]} Pcs</span>
@@ -1516,11 +1609,24 @@
         const name = document.getElementById('new-prod-name').value;
         const price = parseInt(document.getElementById('new-prod-price').value) || 0;
         const hpp = parseInt(document.getElementById('new-prod-hpp').value) || 0;
+        const maklonPrice = parseInt(document.getElementById('new-prod-maklon').value) || 0;
+        const imageUrl = document.getElementById('new-prod-img').value.trim();
         const stock = parseInt(document.getElementById('new-prod-stock').value) || 0;
         const hasSauce = document.getElementById('new-prod-sauce').value === 'true';
 
         if (!name || price <= 0) { alert('Lengkapi nama dan harga produk!'); return; }
-        products.push({ id: 'p_' + Date.now(), category: cat, name: name, basePrice: price, hpp: hpp, stock: stock, hasSauce: hasSauce, tiers: [] });
+        products.push({ 
+            id: 'p_' + Date.now(), 
+            category: cat, 
+            name: name, 
+            basePrice: price, 
+            hpp: hpp, 
+            maklonPrice: maklonPrice, 
+            imageUrl: imageUrl, 
+            stock: stock, 
+            hasSauce: hasSauce, 
+            tiers: [] 
+        });
         
         saveProductsToCloud();
         initUI();
@@ -1528,6 +1634,8 @@
         document.getElementById('new-prod-name').value = '';
         document.getElementById('new-prod-price').value = '';
         document.getElementById('new-prod-hpp').value = '';
+        document.getElementById('new-prod-maklon').value = '';
+        document.getElementById('new-prod-img').value = '';
     }
 
     function openAdminEditProductModal(id) {
@@ -1539,6 +1647,8 @@
         document.getElementById('edit-prod-name').value = p.name || '';
         document.getElementById('edit-prod-price').value = p.basePrice || 0;
         document.getElementById('edit-prod-hpp').value = p.hpp || 0;
+        document.getElementById('edit-prod-maklon').value = p.maklonPrice || 0;
+        document.getElementById('edit-prod-img').value = p.imageUrl || '';
         document.getElementById('edit-prod-stock').value = p.stock || 0;
         document.getElementById('edit-prod-sauce').value = p.hasSauce ? 'true' : 'false';
 
@@ -1554,6 +1664,8 @@
         p.name = document.getElementById('edit-prod-name').value || p.name;
         p.basePrice = parseInt(document.getElementById('edit-prod-price').value) || 0;
         p.hpp = parseInt(document.getElementById('edit-prod-hpp').value) || 0;
+        p.maklonPrice = parseInt(document.getElementById('edit-prod-maklon').value) || 0;
+        p.imageUrl = document.getElementById('edit-prod-img').value.trim();
         p.stock = parseInt(document.getElementById('edit-prod-stock').value) || 0;
         p.hasSauce = document.getElementById('edit-prod-sauce').value === 'true';
 
@@ -1633,21 +1745,22 @@
                      style="border-bottom:1px solid var(--border); padding:10px 0;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div style="display:flex; align-items:center; gap:6px;">
-                            <span class="drag-handle" title="Tarik untuk memindahkan urutan">☰</span>
+                            <span class="drag-handle" title="Tarik untuk memindahkan urutan">==</span>
                             <span style="font-size:0.85rem; color:#64748b; font-weight:bold;">#${idx+1}</span>
                             <strong>[${p.category||'Umum'}] ${p.name}</strong>
                         </div>
                         <div style="display:flex; gap:4px; align-items:center;">
-                            <button style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-size:0.75rem; cursor:pointer;" onclick="moveProduct(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.4;"' : ''}>⬆️</button>
-                            <button style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-size:0.75rem; cursor:pointer;" onclick="moveProduct(${idx}, 1)" ${idx === products.length - 1 ? 'disabled style="opacity:0.4;"' : ''}>⬇️</button>
-                            <button style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:bold; cursor:pointer;" onclick="openAdminEditProductModal('${p.id}')">✏️ Edit</button>
+                            <button style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-size:0.75rem; cursor:pointer;" onclick="moveProduct(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.4;"' : ''}>Naik</button>
+                            <button style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-size:0.75rem; cursor:pointer;" onclick="moveProduct(${idx}, 1)" ${idx === products.length - 1 ? 'disabled style="opacity:0.4;"' : ''}>Turun</button>
+                            <button style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:bold; cursor:pointer;" onclick="openAdminEditProductModal('${p.id}')">Edit</button>
                             <button class="btn-danger" style="padding:2px 6px; font-size:0.75rem; border-radius:4px;" onclick="deleteProduct('${p.id}')">Hapus</button>
                         </div>
                     </div>
 
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-top:6px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; margin-top:6px;">
                         <div><small style="font-size:0.7rem; color:#64748b;">Harga (Rp)</small><input type="number" value="${p.basePrice}" onchange="updateBasePrice('${p.id}', this.value)" style="padding:4px; font-size:0.85rem;"></div>
                         <div><small style="font-size:0.7rem; color:#64748b;">HPP (Rp)</small><input type="number" value="${p.hpp||0}" onchange="updateHppPrice('${p.id}', this.value)" style="padding:4px; font-size:0.85rem;"></div>
+                        <div><small style="font-size:0.7rem; color:#64748b;">Maklon (Rp)</small><input type="number" value="${p.maklonPrice||0}" onchange="updateMaklonPrice('${p.id}', this.value)" style="padding:4px; font-size:0.85rem;"></div>
                         <div><small style="font-size:0.7rem; color:#64748b;">Stok</small><input type="number" class="stock-input-prod" data-id="${p.id}" value="${p.stock}" style="padding:4px; font-size:0.85rem;"></div>
                     </div>
 
@@ -1675,6 +1788,11 @@
         if(p) { p.hpp = parseInt(val) || 0; saveProductsToCloud(); }
     }
 
+    function updateMaklonPrice(id, val) {
+        const p = products.find(item => item.id === id);
+        if(p) { p.maklonPrice = parseInt(val) || 0; saveProductsToCloud(); }
+    }
+
     function renderManageSauces() {
         const container = document.getElementById('manage-sauce-list');
         container.innerHTML = '';
@@ -1686,10 +1804,23 @@
             container.innerHTML += `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border);">
                     <span>${s.name}</span>
-                    <input type="number" class="stock-input-sauce" data-id="${s.id}" value="${s.stock}" style="width:75px; padding:4px;">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <input type="number" class="stock-input-sauce" data-id="${s.id}" value="${s.stock}" style="width:75px; padding:4px;">
+                        <button class="btn-danger" style="padding:2px 6px; font-size:0.75rem; border-radius:4px; border:none; cursor:pointer;" onclick="deleteSauce('${s.id}')">Hapus</button>
+                    </div>
                 </div>
             `;
         });
+    }
+
+    // PERBAIKAN 2: FUNGSI HAPUS SAUS
+    function deleteSauce(id) {
+        if (confirm('Apakah Anda yakin ingin menghapus varian saus ini?')) {
+            lastLocalMutationTime = Date.now();
+            sauces = sauces.filter(s => s.id !== id);
+            saveProductsToCloud();
+            renderManageSauces();
+        }
     }
 
     function saveAllStockChanges() {
@@ -1700,7 +1831,7 @@
             const newStock = parseInt(input.value) || 0;
             const p = products.find(item => item.id === id);
             if (p && p.stock !== newStock) {
-                changedList.push(`• ${p.name}: ${p.stock} ➔ ${newStock}`);
+                changedList.push(`• ${p.name}: ${p.stock} -> ${newStock}`);
             }
         });
 
@@ -1709,7 +1840,7 @@
             const newStock = parseInt(input.value) || 0;
             const s = sauces.find(item => item.id === id);
             if (s && s.stock !== newStock) {
-                changedList.push(`• Saus ${s.name}: ${s.stock} ➔ ${newStock}`);
+                changedList.push(`• Saus ${s.name}: ${s.stock} -> ${newStock}`);
             }
         });
 
@@ -1778,6 +1909,9 @@
         sauces.push({ id: 's_' + Date.now(), name: name, stock: stock });
         saveProductsToCloud();
         renderManageSauces();
+
+        document.getElementById('new-sauce-name').value = '';
+        document.getElementById('new-sauce-stock').value = '';
     }
 
     function saveProductsToCloud() {
