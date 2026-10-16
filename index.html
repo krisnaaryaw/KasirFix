@@ -290,10 +290,9 @@
         </div>
 
         <div class="card-box">
-            <h3>Kelola Harga, HPP, Maklon, Urutan & Stok Produk</h3>
-            <small style="color:#64748b; font-size:0.75rem; display:block; margin-bottom:10px;">Tips: Tekan dan tahan tombol seret (==) untuk menggeser urutan produk.</small>
+            <h3>Daftar & Kelola Produk</h3>
+            <small style="color:#64748b; font-size:0.75rem; display:block; margin-bottom:10px;">Tips: Klik <strong>Edit Produk</strong> untuk merubah Stok, Harga, HPP, Maklon, maupun Promo Kelipatan.</small>
             <div id="manage-products-list"></div>
-            <button class="btn-full btn-primary" style="margin-top:16px; background:#16a34a;" onclick="saveAllStockChanges()">Simpan Semua Perubahan Stok</button>
         </div>
     </div>
 
@@ -348,15 +347,72 @@
         <div class="form-group"><label>HPP / Modal Production (Rp)</label><input type="number" id="edit-prod-hpp"></div>
         <div class="form-group"><label>Harga Maklon / Setoran Titipan (Rp)</label><input type="number" id="edit-prod-maklon"></div>
         <div class="form-group"><label>URL Link Gambar Produk</label><input type="text" id="edit-prod-img"></div>
-        <div class="form-group"><label>Stok</label><input type="number" id="edit-prod-stock"></div>
+        <div class="form-group"><label>Stok Produk</label><input type="number" id="edit-prod-stock"></div>
         <div class="form-group"><label>Ada Opsi Saus Gratis?</label>
             <select id="edit-prod-sauce">
                 <option value="false">Tidak Ada</option>
                 <option value="true">Ya (Tampilkan Pilihan Saus)</option>
             </select>
         </div>
+
+        <!-- PENGATURAN PROMO KELIPATAN DI DALAM MODAL -->
+        <div class="form-group" style="background:#fff7ed; padding:12px; border-radius:10px; border:1px solid #fed7aa;">
+            <label style="color:#c2410c;">Paket Promo / Harga Kelipatan</label>
+            <div id="modal-tier-list-container" style="margin-bottom:8px;"></div>
+            <div style="display:flex; gap:6px;">
+                <input type="number" id="modal-new-tier-qty" placeholder="Pcs (misal 3)" style="width:110px;">
+                <input type="number" id="modal-new-tier-price" placeholder="Total Harga (misal 10000)">
+                <button type="button" class="btn-primary" style="padding:6px 10px; border-radius:6px; font-size:0.75rem; width:auto; font-weight:bold;" onclick="addTierInModal()">+ Promo</button>
+            </div>
+        </div>
+
         <button class="btn-full btn-primary" onclick="saveAdminProductEdit()">Simpan Perubahan Produk</button>
         <button class="btn-full btn-secondary" onclick="closeModal('modal-edit-product-admin')">Batal</button>
+    </div>
+</div>
+
+<!-- MODAL EDIT TRANSAKSI FULL (TERMASUK EDIT SAUS) -->
+<div class="modal" id="modal-edit-transaction">
+    <div class="modal-content">
+        <h3 style="margin-bottom:15px; color:var(--primary);">Edit Transaksi Penuh</h3>
+        
+        <div class="form-group">
+            <label>Nama Pemesan / Meja</label>
+            <input type="text" id="edit-tx-cartname">
+        </div>
+
+        <div class="form-group">
+            <label>Tanggal & Waktu Transaksi</label>
+            <input type="datetime-local" id="edit-tx-date">
+        </div>
+
+        <div class="form-group">
+            <label>Metode Pembayaran</label>
+            <select id="edit-tx-payment">
+                <option value="Tunai">Tunai (Cash)</option>
+                <option value="QRIS">QRIS</option>
+            </select>
+        </div>
+
+        <!-- ITEM TRANSAKSI EDITING & PILIHAN SAUS -->
+        <div class="form-group">
+            <label>Daftar Item & Pilihan Saus Transaksi Ini</label>
+            <div id="edit-tx-items-list" style="margin-bottom:10px;"></div>
+            
+            <label style="font-size:0.78rem; color:#64748b;">+ Tambah Produk ke Transaksi Ini:</label>
+            <div style="display:flex; gap:6px;">
+                <select id="edit-tx-add-prod-select" style="font-size:0.85rem;"></select>
+                <button type="button" class="btn-primary" style="padding:6px 12px; border-radius:8px; width:auto; font-size:0.8rem;" onclick="addItemToEditingTransaction()">+ Item</button>
+            </div>
+        </div>
+
+        <div style="padding:10px; background:#fff7ed; border-radius:8px; border:1px solid #fed7aa; margin-bottom:12px; text-align:right;">
+            <small style="color:#64748b; font-weight:bold;">TOTAL BARU:</small>
+            <strong id="edit-tx-total-display" style="font-size:1.2rem; color:var(--primary); display:block;">Rp 0</strong>
+        </div>
+
+        <button class="btn-full btn-primary" onclick="saveTransactionEditFull()">Simpan Perubahan & Update Stok</button>
+        <button class="btn-full btn-secondary" onclick="closeModal('modal-edit-transaction')">Batal</button>
     </div>
 </div>
 
@@ -404,8 +460,15 @@
         </div>
         
         <div id="cart-items-container" style="margin: 10px 0;"></div>
+
+        <!-- WIDGET PEMILIH TANGGAL & WAKTU (DATETIME-LOCAL) -->
+        <div class="form-group" style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
+            <label style="color:var(--primary);">Tanggal & Waktu Transaksi (Opsional / Input Susulan)</label>
+            <input type="datetime-local" id="cart-custom-date">
+            <small style="color:#64748b; font-size:0.72rem;">Klik ikon kalender untuk memilih tanggal/jam susulan. Kosongkan untuk waktu sekarang.</small>
+        </div>
         
-        <div class="form-group" style="margin-top:14px; border-top:1px solid var(--border); padding-top:12px;">
+        <div class="form-group">
             <label>Metode Pembayaran</label>
             <div class="radio-group">
                 <div class="radio-btn selected" id="pay-cash" onclick="selectPayment('Tunai')">Tunai (Cash)</div>
@@ -479,7 +542,6 @@
     let adminPIN = localStorage.getItem('pos_admin_pin') || "1234";
     let quickDenoms = JSON.parse(localStorage.getItem('pos_quick_denoms') || "[5000, 10000, 20000, 50000, 100000]");
 
-    // PERBAIKAN 1: SIMPAN SESSION ROLE DI LOCALSTORAGE
     let currentRole = localStorage.getItem('pos_current_role') || 'kasir';
     let currentTabName = 'kasir';
 
@@ -494,6 +556,9 @@
     let activeProdId = null;
     let editingCartItemIndex = null;
     let editingAdminProdId = null;
+    let editingTiersTemp = [];
+    let editingTxId = null;
+    let editingTxItems = [];
 
     let selectedPayment = 'Tunai';
     let cashPaidAmount = 0;
@@ -503,6 +568,17 @@
 
     let lastLocalMutationTime = 0;
     let draggedIndex = null;
+
+    function toDatetimeLocalString(dObj) {
+        if (!dObj || isNaN(dObj.getTime())) dObj = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const yyyy = dObj.getFullYear();
+        const mm = pad(dObj.getMonth() + 1);
+        const dd = pad(dObj.getDate());
+        const hh = pad(dObj.getHours());
+        const min = pad(dObj.getMinutes());
+        return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+    }
 
     function setSyncStatus(status) {
         const dot = document.getElementById('sync-status-dot');
@@ -515,27 +591,7 @@
         return carts.find(c => c.id === activeCartId) || carts[0];
     }
 
-    function checkUnsavedStockChanges() {
-        let hasChanges = false;
-        document.querySelectorAll('.stock-input-prod').forEach(input => {
-            const id = input.getAttribute('data-id');
-            const newStock = parseInt(input.value) || 0;
-            const p = products.find(item => item.id === id);
-            if (p && p.stock !== newStock) hasChanges = true;
-        });
-
-        document.querySelectorAll('.stock-input-sauce').forEach(input => {
-            const id = input.getAttribute('data-id');
-            const newStock = parseInt(input.value) || 0;
-            const s = sauces.find(item => item.id === id);
-            if (s && s.stock !== newStock) hasChanges = true;
-        });
-
-        return hasChanges;
-    }
-
     function syncBackground() {
-        if (checkUnsavedStockChanges()) return;
         if (Date.now() - lastLocalMutationTime < 8000) return;
 
         if (!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL.includes("MASUKKAN_URL")) {
@@ -627,13 +683,6 @@
     }
 
     function switchTab(tab) {
-        if (currentTabName === 'stok' && tab !== 'stok' && checkUnsavedStockChanges()) {
-            const isSave = confirm("Ada perubahan stok yang belum disimpan!\n\n• Tekan 'OK' untuk SIMPAN perubahan stok.\n• Tekan 'Batal' untuk ABAIKAN perubahan & pindah tab.");
-            if (isSave) {
-                saveAllStockChanges();
-            }
-        }
-
         if ((tab === 'laporan' || tab === 'stok' || tab === 'pengaturan') && currentRole !== 'admin') {
             const pin = prompt('Akses Terkunci. Masukkan PIN Admin:');
             if (pin === adminPIN) {
@@ -1007,6 +1056,7 @@
         renderCartItemsModal();
         
         document.getElementById('cash-paid-input').value = '';
+        document.getElementById('cart-custom-date').value = '';
         selectPayment('Tunai');
         
         document.getElementById('modal-cart').classList.add('active');
@@ -1099,6 +1149,7 @@
     function closeModal(id) { 
         if (id === 'modal-product') editingCartItemIndex = null;
         if (id === 'modal-edit-product-admin') editingAdminProdId = null;
+        if (id === 'modal-edit-transaction') editingTxId = null;
         document.getElementById(id).classList.remove('active'); 
     }
 
@@ -1111,10 +1162,15 @@
             return;
         }
 
+        const datePickerVal = document.getElementById('cart-custom-date').value;
         const queueNo = historyData.length + 1;
         const trxId = '#' + Math.random().toString(36).substr(2, 8).toUpperCase();
-        const dateStr = new Date().toLocaleString('id-ID');
-        const timestamp = Date.now();
+        
+        let targetDateObj = datePickerVal ? new Date(datePickerVal) : new Date();
+        if (isNaN(targetDateObj.getTime())) targetDateObj = new Date();
+
+        const dateStr = targetDateObj.toLocaleString('id-ID');
+        const timestamp = targetDateObj.getTime();
 
         const itemsSummary = currentCart.items.map(i => `${i.name} x${i.qty}`).join(', ');
 
@@ -1374,7 +1430,6 @@
                     }
                     let totalItemHpp = itemHpp * itemQty;
 
-                    // Hitung Maklon / Titipan
                     let mPrice = i.maklonPrice || (matchingProd ? matchingProd.maklonPrice : 0) || 0;
                     if (mPrice > 0) {
                         if (!maklonCounter[itemName]) {
@@ -1437,7 +1492,6 @@
 
         renderSVGChart(dailyTrend);
 
-        // RENDER RINCIAN DANA SETORAN MAKLON/TITIPAN
         const maklonContainer = document.getElementById('maklon-summary-container');
         if (maklonContainer) {
             maklonContainer.innerHTML = '';
@@ -1498,6 +1552,7 @@
                                 <small style="color:#64748b;">${tx.date} - <strong>${tx.id}</strong> (${tx.cartName||'Pesanan'})</small>
                                 <div>
                                     <small style="background:#ffedd5; color:#c2410c; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:4px;">${tx.payment}</small>
+                                    <button style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; padding:2px 6px; font-size:0.7rem; border-radius:4px; cursor:pointer; margin-right:4px;" onclick="openEditTransactionModal('${tx.id}')">Edit</button>
                                     <button class="btn-danger" style="padding:2px 6px; font-size:0.7rem; border-radius:4px; border:none; cursor:pointer;" onclick="deleteTransaction('${tx.id}')">Hapus</button>
                                 </div>
                             </div>
@@ -1530,6 +1585,283 @@
                 `;
             }
         }
+    }
+
+    /* FITUR EDIT TRANSAKSI FULL DENGAN AUTOMATIC STOCK RECALCULATION & EDIT SAUS */
+    function openEditTransactionModal(txId) {
+        if (currentRole !== 'admin') {
+            const pin = prompt("Membutuhkan PIN Admin untuk edit transaksi:");
+            if (pin !== adminPIN) { alert("PIN Salah!"); return; }
+        }
+        const tx = historyData.find(t => t.id === txId);
+        if (!tx) return;
+
+        editingTxId = txId;
+        editingTxItems = JSON.parse(JSON.stringify(tx.itemsList || []));
+
+        document.getElementById('edit-tx-cartname').value = tx.cartName || '';
+        
+        let txDateObj = tx.timestamp ? new Date(tx.timestamp) : parseDateFallback(tx.date);
+        document.getElementById('edit-tx-date').value = toDatetimeLocalString(txDateObj);
+        document.getElementById('edit-tx-payment').value = tx.payment || 'Tunai';
+
+        const addSelect = document.getElementById('edit-tx-add-prod-select');
+        addSelect.innerHTML = '<option value="">-- Pilih Tambah Produk --</option>';
+        products.forEach(p => {
+            addSelect.innerHTML += `<option value="${p.id}">${p.name} (Rp ${p.basePrice.toLocaleString()})</option>`;
+        });
+
+        renderEditingTxItems();
+        document.getElementById('modal-edit-transaction').classList.add('active');
+    }
+
+    function renderEditingTxItems() {
+        const container = document.getElementById('edit-tx-items-list');
+        container.innerHTML = '';
+        let currentTotal = 0;
+
+        if (editingTxItems.length === 0) {
+            container.innerHTML = '<p style="color:#ef4444; font-size:0.8rem;">Item kosong! Silakan tambah produk.</p>';
+        } else {
+            editingTxItems.forEach((item, idx) => {
+                let matchingProd = products.find(p => p.id === item.prodId || p.name === item.name);
+                if (matchingProd) {
+                    const priceRes = calculateAutoPrice(matchingProd, item.qty);
+                    item.subtotal = priceRes.total;
+                    item.unitPrice = Math.round(priceRes.total / item.qty);
+                } else {
+                    item.subtotal = (item.unitPrice || 0) * item.qty;
+                }
+                currentTotal += item.subtotal;
+
+                // FITUR SAUS GRATIS DI EDIT TRANSAKSI
+                let sauceHtml = '';
+                if (matchingProd && matchingProd.hasSauce) {
+                    sauceHtml += `<div style="margin-top:6px; padding:6px 8px; background:#fff7ed; border:1px solid #fed7aa; border-radius:6px;">
+                        <small style="color:#c2410c; font-weight:bold; display:block; margin-bottom:4px;">Pilihan Saus Gratis Item Ini:</small>`;
+                    
+                    sauces.forEach(s => {
+                        let existingSauce = (item.chosenSauces || []).find(cs => cs.id === s.id);
+                        let sQty = existingSauce ? existingSauce.qty : 0;
+                        
+                        sauceHtml += `
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; font-size:0.78rem;">
+                                <span>${s.name} <small style="color:#6b7280;">(Stok: ${s.stock})</small></span>
+                                <div style="display:flex; gap:4px; align-items:center;">
+                                    <button type="button" class="qty-btn" style="width:22px; height:22px; font-size:0.75rem;" onclick="adjustTxItemSauceQty(${idx}, '${s.id}', -1)">-</button>
+                                    <span style="font-weight:bold; min-width:14px; text-align:center;">${sQty}</span>
+                                    <button type="button" class="qty-btn" style="width:22px; height:22px; font-size:0.75rem;" onclick="adjustTxItemSauceQty(${idx}, '${s.id}', 1)">+</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    sauceHtml += `</div>`;
+                }
+
+                container.innerHTML += `
+                    <div style="padding:10px 0; border-bottom:1px solid var(--border);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
+                            <div>
+                                <strong>${item.name}</strong><br>
+                                <small style="color:var(--primary); font-weight:bold;">Rp ${item.subtotal.toLocaleString()}</small>
+                            </div>
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <button type="button" class="qty-btn" onclick="adjustEditTxItemQty(${idx}, -1)">-</button>
+                                <span style="font-weight:bold; padding:0 4px;">${item.qty}</span>
+                                <button type="button" class="qty-btn" onclick="adjustEditTxItemQty(${idx}, 1)">+</button>
+                                <button type="button" style="background:#fee2e2; border:1px solid #fca5a5; color:#ef4444; padding:2px 6px; border-radius:4px; font-size:0.75rem; cursor:pointer;" onclick="removeEditTxItem(${idx})">✕</button>
+                            </div>
+                        </div>
+                        ${sauceHtml}
+                    </div>
+                `;
+            });
+        }
+        document.getElementById('edit-tx-total-display').innerText = `Rp ${currentTotal.toLocaleString()}`;
+    }
+
+    function adjustTxItemSauceQty(itemIdx, sauceId, delta) {
+        const item = editingTxItems[itemIdx];
+        if (!item) return;
+
+        if (!item.chosenSauces) item.chosenSauces = [];
+
+        const s = sauces.find(sauce => sauce.id === sauceId);
+        if (!s) return;
+
+        let existingIndex = item.chosenSauces.findIndex(cs => cs.id === sauceId);
+        let currentQty = existingIndex >= 0 ? item.chosenSauces[existingIndex].qty : 0;
+
+        if (delta > 0 && currentQty + delta > s.stock) {
+            alert(`Stok ${s.name} tidak cukup!`);
+            return;
+        }
+
+        let newQty = currentQty + delta;
+
+        if (newQty > 0) {
+            if (existingIndex >= 0) {
+                item.chosenSauces[existingIndex].qty = newQty;
+            } else {
+                item.chosenSauces.push({ id: s.id, name: s.name, qty: newQty });
+            }
+        } else {
+            if (existingIndex >= 0) {
+                item.chosenSauces.splice(existingIndex, 1);
+            }
+        }
+
+        renderEditingTxItems();
+    }
+
+    function adjustEditTxItemQty(idx, delta) {
+        if (editingTxItems[idx]) {
+            if (editingTxItems[idx].qty + delta > 0) {
+                editingTxItems[idx].qty += delta;
+            } else {
+                editingTxItems.splice(idx, 1);
+            }
+            renderEditingTxItems();
+        }
+    }
+
+    function removeEditTxItem(idx) {
+        editingTxItems.splice(idx, 1);
+        renderEditingTxItems();
+    }
+
+    function addItemToEditingTransaction() {
+        const prodId = document.getElementById('edit-tx-add-prod-select').value;
+        if (!prodId) return;
+
+        const prod = products.find(p => p.id === prodId);
+        if (!prod) return;
+
+        let existing = editingTxItems.find(i => i.prodId === prod.id || i.name === prod.name);
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            editingTxItems.push({
+                prodId: prod.id,
+                category: prod.category || "Umum",
+                name: prod.name,
+                unitPrice: prod.basePrice,
+                unitHpp: prod.hpp || 0,
+                maklonPrice: prod.maklonPrice || 0,
+                chosenSauces: [],
+                qty: 1,
+                subtotal: prod.basePrice,
+                totalHpp: prod.hpp || 0
+            });
+        }
+        renderEditingTxItems();
+    }
+
+    function saveTransactionEditFull() {
+        if (!editingTxId) return;
+        const tx = historyData.find(t => t.id === editingTxId);
+        if (!tx) return;
+
+        if (editingTxItems.length === 0) {
+            alert("Transaksi harus memiliki minimal 1 item produk!");
+            return;
+        }
+
+        const newName = document.getElementById('edit-tx-cartname').value.trim() || tx.cartName;
+        const datePickerVal = document.getElementById('edit-tx-date').value;
+        const newPayment = document.getElementById('edit-tx-payment').value;
+
+        let targetDateObj = datePickerVal ? new Date(datePickerVal) : new Date();
+        if (isNaN(targetDateObj.getTime())) targetDateObj = new Date();
+
+        const newDateStr = targetDateObj.toLocaleString('id-ID');
+        const newTimestamp = targetDateObj.getTime();
+
+        // REKALKULASI STOK PRODUK & SAUS: Kembalikan stok lama, lalu kurangi stok baru
+        let oldItems = tx.itemsList || [];
+        oldItems.forEach(oldItm => {
+            let p = products.find(prod => prod.id === oldItm.prodId || prod.name === oldItm.name);
+            if (p) p.stock += oldItm.qty;
+
+            if (oldItm.chosenSauces && Array.isArray(oldItm.chosenSauces)) {
+                oldItm.chosenSauces.forEach(cs => {
+                    let s = sauces.find(sItem => sItem.id === cs.id || sItem.name === cs.name);
+                    if (s) s.stock += cs.qty;
+                });
+            }
+        });
+
+        editingTxItems.forEach(newItm => {
+            let p = products.find(prod => prod.id === newItm.prodId || prod.name === newItm.name);
+            if (p) p.stock = Math.max(0, p.stock - newItm.qty);
+
+            if (newItm.chosenSauces && Array.isArray(newItm.chosenSauces)) {
+                newItm.chosenSauces.forEach(cs => {
+                    let s = sauces.find(sItem => sItem.id === cs.id || sItem.name === cs.name);
+                    if (s) s.stock = Math.max(0, s.stock - cs.qty);
+                });
+            }
+        });
+
+        // REKALKULASI TOTAL, HPP & LABA
+        let totalOmset = 0;
+        let totalHpp = 0;
+        editingTxItems.forEach(i => {
+            let p = products.find(prod => prod.id === i.prodId || prod.name === i.name);
+            if (p) {
+                const prRes = calculateAutoPrice(p, i.qty);
+                i.subtotal = prRes.total;
+                i.unitPrice = Math.round(prRes.total / i.qty);
+                i.unitHpp = p.hpp || 0;
+                i.maklonPrice = p.maklonPrice || 0;
+            }
+            totalOmset += i.subtotal;
+            totalHpp += (i.unitHpp || 0) * i.qty;
+        });
+
+        let laba = totalOmset - totalHpp;
+        let itemsSummary = editingTxItems.map(i => `${i.name} x${i.qty}`).join(', ');
+
+        tx.cartName = newName;
+        tx.date = newDateStr;
+        tx.timestamp = newTimestamp;
+        tx.payment = newPayment;
+        tx.itemsList = editingTxItems;
+        tx.itemsSummary = itemsSummary;
+        tx.total = totalOmset;
+        tx.totalHpp = totalHpp;
+        tx.laba = laba;
+        tx.cashPaid = newPayment === 'Tunai' ? Math.max(totalOmset, tx.cashPaid) : totalOmset;
+        tx.cashChange = newPayment === 'Tunai' ? Math.max(0, tx.cashPaid - totalOmset) : 0;
+
+        // KIRIM PERUBAHAN KE GOOGLE SHEETS
+        saveProductsToCloud(); // Sync Stok Baru
+        if (GOOGLE_SHEET_URL && !GOOGLE_SHEET_URL.includes("MASUKKAN_URL")) {
+            fetch(GOOGLE_SHEET_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'update_full_transaction',
+                    id: editingTxId,
+                    cartName: tx.cartName,
+                    date: tx.date,
+                    timestamp: tx.timestamp,
+                    payment: tx.payment,
+                    itemsSummary: tx.itemsSummary,
+                    itemsList: tx.itemsList,
+                    total: tx.total,
+                    totalHpp: tx.totalHpp,
+                    laba: tx.laba,
+                    cashPaid: tx.cashPaid,
+                    cashChange: tx.cashChange
+                })
+            });
+        }
+
+        closeModal('modal-edit-transaction');
+        initUI();
+        alert('Transaksi berhasil diperbarui, stok saus & produk otomatis disesuaikan!');
     }
 
     function deleteTransaction(txId) {
@@ -1643,6 +1975,8 @@
         const p = products.find(item => item.id === id);
         if (!p) return;
 
+        editingTiersTemp = JSON.parse(JSON.stringify(p.tiers || []));
+
         document.getElementById('edit-prod-cat').value = p.category || 'Umum';
         document.getElementById('edit-prod-name').value = p.name || '';
         document.getElementById('edit-prod-price').value = p.basePrice || 0;
@@ -1652,7 +1986,43 @@
         document.getElementById('edit-prod-stock').value = p.stock || 0;
         document.getElementById('edit-prod-sauce').value = p.hasSauce ? 'true' : 'false';
 
+        renderModalTiersList();
         document.getElementById('modal-edit-product-admin').classList.add('active');
+    }
+
+    function renderModalTiersList() {
+        const container = document.getElementById('modal-tier-list-container');
+        container.innerHTML = '';
+        if (editingTiersTemp.length === 0) {
+            container.innerHTML = '<small style="color:#64748b;">Belum ada paket promo.</small>';
+            return;
+        }
+        editingTiersTemp.forEach((t, idx) => {
+            container.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border-radius:6px; border:1px solid #fed7aa; margin-bottom:4px; font-size:0.8rem;">
+                    <span><strong>${t.qty} Pcs</strong> = Rp ${t.price.toLocaleString()}</span>
+                    <button type="button" onclick="deleteTierInModal(${idx})" style="background:none; border:none; color:#ef4444; font-weight:bold; cursor:pointer;">✕</button>
+                </div>
+            `;
+        });
+    }
+
+    function addTierInModal() {
+        const qty = parseInt(document.getElementById('modal-new-tier-qty').value);
+        const price = parseInt(document.getElementById('modal-new-tier-price').value);
+        if (!qty || !price) { alert('Isi Pcs dan Total Harganya!'); return; }
+
+        editingTiersTemp.push({ qty: qty, price: price });
+        editingTiersTemp.sort((a, b) => a.qty - b.qty);
+        renderModalTiersList();
+
+        document.getElementById('modal-new-tier-qty').value = '';
+        document.getElementById('modal-new-tier-price').value = '';
+    }
+
+    function deleteTierInModal(idx) {
+        editingTiersTemp.splice(idx, 1);
+        renderModalTiersList();
     }
 
     function saveAdminProductEdit() {
@@ -1668,6 +2038,7 @@
         p.imageUrl = document.getElementById('edit-prod-img').value.trim();
         p.stock = parseInt(document.getElementById('edit-prod-stock').value) || 0;
         p.hasSauce = document.getElementById('edit-prod-sauce').value === 'true';
+        p.tiers = editingTiersTemp;
 
         saveProductsToCloud();
         closeModal('modal-edit-product-admin');
@@ -1724,17 +2095,7 @@
             return;
         }
         products.forEach((p, idx) => {
-            let tiersHtml = '';
-            if(p.tiers) {
-                p.tiers.forEach((t, tIdx) => {
-                    tiersHtml += `
-                        <span style="background:#f3f4f6; padding:3px 8px; border-radius:6px; font-size:0.75rem; margin-right:4px;">
-                            ${t.qty} Pcs = Rp ${t.price.toLocaleString()}
-                            <a href="#" onclick="deleteTier('${p.id}', ${tIdx})" style="color:red; margin-left:4px; text-decoration:none;">✕</a>
-                        </span>
-                    `;
-                });
-            }
+            let promoCount = (p.tiers && p.tiers.length) ? `${p.tiers.length} Promo` : 'Tidak Ada Promo';
 
             container.innerHTML += `
                 <div class="draggable-item" draggable="true" 
@@ -1752,45 +2113,24 @@
                         <div style="display:flex; gap:4px; align-items:center;">
                             <button style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-size:0.75rem; cursor:pointer;" onclick="moveProduct(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.4;"' : ''}>Naik</button>
                             <button style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-size:0.75rem; cursor:pointer;" onclick="moveProduct(${idx}, 1)" ${idx === products.length - 1 ? 'disabled style="opacity:0.4;"' : ''}>Turun</button>
-                            <button style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:bold; cursor:pointer;" onclick="openAdminEditProductModal('${p.id}')">Edit</button>
-                            <button class="btn-danger" style="padding:2px 6px; font-size:0.75rem; border-radius:4px;" onclick="deleteProduct('${p.id}')">Hapus</button>
+                            <button style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold; cursor:pointer;" onclick="openAdminEditProductModal('${p.id}')">Edit Produk</button>
+                            <button class="btn-danger" style="padding:4px 8px; font-size:0.75rem; border-radius:4px;" onclick="deleteProduct('${p.id}')">Hapus</button>
                         </div>
                     </div>
 
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; margin-top:6px;">
-                        <div><small style="font-size:0.7rem; color:#64748b;">Harga (Rp)</small><input type="number" value="${p.basePrice}" onchange="updateBasePrice('${p.id}', this.value)" style="padding:4px; font-size:0.85rem;"></div>
-                        <div><small style="font-size:0.7rem; color:#64748b;">HPP (Rp)</small><input type="number" value="${p.hpp||0}" onchange="updateHppPrice('${p.id}', this.value)" style="padding:4px; font-size:0.85rem;"></div>
-                        <div><small style="font-size:0.7rem; color:#64748b;">Maklon (Rp)</small><input type="number" value="${p.maklonPrice||0}" onchange="updateMaklonPrice('${p.id}', this.value)" style="padding:4px; font-size:0.85rem;"></div>
-                        <div><small style="font-size:0.7rem; color:#64748b;">Stok</small><input type="number" class="stock-input-prod" data-id="${p.id}" value="${p.stock}" style="padding:4px; font-size:0.85rem;"></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; margin-top:8px; background:#f8fafc; padding:8px; border-radius:8px; font-size:0.8rem;">
+                        <div><small style="color:#64748b; display:block;">Harga</small><strong>Rp ${(p.basePrice||0).toLocaleString()}</strong></div>
+                        <div><small style="color:#64748b; display:block;">HPP</small><strong>Rp ${(p.hpp||0).toLocaleString()}</strong></div>
+                        <div><small style="color:#64748b; display:block;">Maklon</small><strong>Rp ${(p.maklonPrice||0).toLocaleString()}</strong></div>
+                        <div><small style="color:#64748b; display:block;">Stok</small><strong style="color:var(--primary);">${p.stock} Pcs</strong></div>
                     </div>
-
-                    <div style="margin-top:6px;">
-                        <small style="color:#64748b; font-weight:bold;">Paket Promo Kelipatan:</small>
-                        <div style="margin:4px 0;">${tiersHtml || '<small style="color:#aaa;">Belum ada promo.</small>'}</div>
-                        <div style="display:flex; gap:6px; align-items:center;">
-                            <input type="number" id="tier-qty-${p.id}" placeholder="Pcs" style="width:70px; padding:4px;">
-                            <input type="number" id="tier-price-${p.id}" placeholder="Total Rp" style="padding:4px;">
-                            <button class="btn-primary" style="padding:4px 8px; font-size:0.75rem; border-radius:6px; width:auto;" onclick="addTier('${p.id}')">+ Promo</button>
-                        </div>
+                    
+                    <div style="margin-top:4px;">
+                        <small style="color:#64748b;">Promo Kelipatan: <strong>${promoCount}</strong></small>
                     </div>
                 </div>
             `;
         });
-    }
-
-    function updateBasePrice(id, val) {
-        const p = products.find(item => item.id === id);
-        if(p) { p.basePrice = parseInt(val) || 0; saveProductsToCloud(); renderPOSGrid(); }
-    }
-
-    function updateHppPrice(id, val) {
-        const p = products.find(item => item.id === id);
-        if(p) { p.hpp = parseInt(val) || 0; saveProductsToCloud(); }
-    }
-
-    function updateMaklonPrice(id, val) {
-        const p = products.find(item => item.id === id);
-        if(p) { p.maklonPrice = parseInt(val) || 0; saveProductsToCloud(); }
     }
 
     function renderManageSauces() {
@@ -1805,7 +2145,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border);">
                     <span>${s.name}</span>
                     <div style="display:flex; gap:8px; align-items:center;">
-                        <input type="number" class="stock-input-sauce" data-id="${s.id}" value="${s.stock}" style="width:75px; padding:4px;">
+                        <input type="number" value="${s.stock}" onchange="updateSauceStock('${s.id}', this.value)" style="width:75px; padding:4px;">
                         <button class="btn-danger" style="padding:2px 6px; font-size:0.75rem; border-radius:4px; border:none; cursor:pointer;" onclick="deleteSauce('${s.id}')">Hapus</button>
                     </div>
                 </div>
@@ -1813,83 +2153,20 @@
         });
     }
 
-    // PERBAIKAN 2: FUNGSI HAPUS SAUS
+    function updateSauceStock(id, val) {
+        const s = sauces.find(item => item.id === id);
+        if (s) {
+            s.stock = parseInt(val) || 0;
+            saveProductsToCloud();
+        }
+    }
+
     function deleteSauce(id) {
         if (confirm('Apakah Anda yakin ingin menghapus varian saus ini?')) {
             lastLocalMutationTime = Date.now();
             sauces = sauces.filter(s => s.id !== id);
             saveProductsToCloud();
             renderManageSauces();
-        }
-    }
-
-    function saveAllStockChanges() {
-        let changedList = [];
-
-        document.querySelectorAll('.stock-input-prod').forEach(input => {
-            const id = input.getAttribute('data-id');
-            const newStock = parseInt(input.value) || 0;
-            const p = products.find(item => item.id === id);
-            if (p && p.stock !== newStock) {
-                changedList.push(`• ${p.name}: ${p.stock} -> ${newStock}`);
-            }
-        });
-
-        document.querySelectorAll('.stock-input-sauce').forEach(input => {
-            const id = input.getAttribute('data-id');
-            const newStock = parseInt(input.value) || 0;
-            const s = sauces.find(item => item.id === id);
-            if (s && s.stock !== newStock) {
-                changedList.push(`• Saus ${s.name}: ${s.stock} -> ${newStock}`);
-            }
-        });
-
-        if (changedList.length === 0) {
-            alert('Tidak ada perubahan angka stok.');
-            return;
-        }
-
-        const isConfirmed = confirm(`Konfirmasi perubahan stok berikut?\n\n${changedList.join('\n')}\n\nSimpan ke sistem?`);
-        if (isConfirmed) {
-            document.querySelectorAll('.stock-input-prod').forEach(input => {
-                const id = input.getAttribute('data-id');
-                const p = products.find(item => item.id === id);
-                if (p) p.stock = parseInt(input.value) || 0;
-            });
-
-            document.querySelectorAll('.stock-input-sauce').forEach(input => {
-                const id = input.getAttribute('data-id');
-                const s = sauces.find(item => item.id === id);
-                if (s) s.stock = parseInt(input.value) || 0;
-            });
-
-            saveProductsToCloud();
-            initUI();
-            alert('Semua perubahan stok berhasil disimpan!');
-        }
-    }
-
-    function addTier(id) {
-        const qty = parseInt(document.getElementById(`tier-qty-${id}`).value);
-        const price = parseInt(document.getElementById(`tier-price-${id}`).value);
-        if(!qty || !price) { alert('Isi Jumlah Pcs dan Total Harganya!'); return; }
-
-        const p = products.find(item => item.id === id);
-        if(p) {
-            if(!p.tiers) p.tiers = [];
-            p.tiers.push({ qty: qty, price: price });
-            p.tiers.sort((a, b) => a.qty - b.qty);
-            saveProductsToCloud();
-            renderManageProducts();
-        }
-    }
-
-    function deleteTier(id, tIdx) {
-        const p = products.find(item => item.id === id);
-        if(p && p.tiers) {
-            p.tiers.splice(tIdx, 1);
-            saveProductsToCloud();
-            renderManageProducts();
         }
     }
 
